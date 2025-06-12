@@ -1,0 +1,93 @@
+import mysql.connector
+from dotenv import load_dotenv
+import os
+from datetime import date
+
+# 🌱 Load environment variables
+load_dotenv()
+
+# ✅ Connect to MySQL
+conn = mysql.connector.connect(
+    host=os.getenv("DB_HOST"),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD"),
+    database=os.getenv("DB_NAME")
+)
+cursor = conn.cursor()
+
+# 🚀 User Menu
+print("\n📘 Smart Expense Tracker")
+print("1. Add Expense")
+print("2. View All Expenses")
+print("3. View Today’s Expenses")
+print("4. View by Category")
+print("5. View Total Spent")
+print("6. View Category-wise Totals")
+print("7. Delete Expense by ID")  # 👈 Added delete option
+
+choice = input("👉 Enter your choice (1–7): ")
+
+if choice == "1":
+    category = input("Enter expense category (e.g., Food, Travel): ")
+    amount = float(input("Enter amount spent: ₹ "))
+    note = input("Enter a note (e.g., Lunch, Bus): ").strip() or "No note"
+
+    cursor.execute(
+        "INSERT INTO expenses (category, amount, note, expense_date) VALUES (%s, %s, %s, %s)",
+        (category, amount, note, date.today())
+    )
+    conn.commit()
+    print("✅ Expense saved successfully!")
+
+elif choice == "2":
+    cursor.execute("SELECT id, amount, category, note, expense_date FROM expenses")
+    results = cursor.fetchall()
+    print("\n📋 All Expenses:")
+    for row in results:
+        id, amount, category, note, expense_date = row
+        print(f"ID: {id} | ₹{amount} | {category} - {note} | Date: {expense_date}")
+
+elif choice == "3":
+    today = date.today()
+    cursor.execute("SELECT id, amount, category, note FROM expenses WHERE expense_date = %s", (today,))
+    results = cursor.fetchall()
+    print(f"\n📆 Expenses on {today}:")
+    for row in results:
+        id, amount, category, note = row
+        print(f"ID: {id} | ₹{amount} | {category} - {note}")
+
+elif choice == "4":
+    search = input("Enter category to view: ")
+    cursor.execute("SELECT id, amount, note, expense_date FROM expenses WHERE category = %s", (search,))
+    results = cursor.fetchall()
+    print(f"\n🔎 Expenses in category: {search}")
+    for row in results:
+        id, amount, note, expense_date = row
+        print(f"ID: {id} | ₹{amount} | {note} | Date: {expense_date}")
+
+elif choice == "5":
+    cursor.execute("SELECT SUM(amount) FROM expenses")
+    total = cursor.fetchone()[0]
+    print(f"\n💰 Total Spent: ₹{total if total else 0}")
+
+elif choice == "6":
+    cursor.execute("SELECT category, SUM(amount) FROM expenses GROUP BY category")
+    results = cursor.fetchall()
+    print("\n📊 Category-wise Total:")
+    for category, total in results:
+        print(f"{category}: ₹{total}")
+
+elif choice == "7":
+    delete_id = input("Enter Expense ID to delete: ")
+    cursor.execute("DELETE FROM expenses WHERE id = %s", (delete_id,))
+    conn.commit()
+    if cursor.rowcount > 0:
+        print(f"🗑️ Expense ID {delete_id} deleted successfully.")
+    else:
+        print("❌ No expense found with that ID.")
+
+else:
+    print("❌ Invalid choice. Please try again.")
+
+# ✅ Always close the connection
+conn.close()
