@@ -23,7 +23,7 @@ print("3. View Today’s Expenses")
 print("4. View by Category")
 print("5. View Total Spent")
 print("6. View Category-wise Totals")
-print("7. Delete Expense by ID")  # 👈 Added delete option
+print("7. Delete Expense by ID")
 
 choice = input("👉 Enter your choice (1–7): ")
 
@@ -44,8 +44,8 @@ elif choice == "2":
     results = cursor.fetchall()
     print("\n📋 All Expenses:")
     for row in results:
-        id, amount, category, note, expense_date = row
-        print(f"ID: {id} | ₹{amount} | {category} - {note} | Date: {expense_date}")
+        expense_id, amount, category, note, expense_date = row
+        print(f"ID: {expense_id} | ₹{amount} | {category} - {note} | Date: {expense_date}")
 
 elif choice == "3":
     today = date.today()
@@ -53,8 +53,8 @@ elif choice == "3":
     results = cursor.fetchall()
     print(f"\n📆 Expenses on {today}:")
     for row in results:
-        id, amount, category, note = row
-        print(f"ID: {id} | ₹{amount} | {category} - {note}")
+        expense_id, amount, category, note = row
+        print(f"ID: {expense_id} | ₹{amount} | {category} - {note}")
 
 elif choice == "4":
     search = input("Enter category to view: ")
@@ -62,8 +62,8 @@ elif choice == "4":
     results = cursor.fetchall()
     print(f"\n🔎 Expenses in category: {search}")
     for row in results:
-        id, amount, note, expense_date = row
-        print(f"ID: {id} | ₹{amount} | {note} | Date: {expense_date}")
+        expense_id, amount, note, expense_date = row
+        print(f"ID: {expense_id} | ₹{amount} | {note} | Date: {expense_date}")
 
 elif choice == "5":
     cursor.execute("SELECT SUM(amount) FROM expenses")
