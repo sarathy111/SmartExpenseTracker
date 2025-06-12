@@ -1,0 +1,16 @@
+CREATE DATABASE expense_db;
+USE expense_db;
+
+CREATE TABLE expenses (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    amount DECIMAL(10,2),
+    category VARCHAR(50),
+    note VARCHAR(255),
+    date DATE
+);
+ALTER TABLE expenses 
+CHANGE COLUMN date expense_date DATE;
+UPDATE expenses 
+SET description = 'No description' 
+WHERE description IS NULL
+DESC expenses;
